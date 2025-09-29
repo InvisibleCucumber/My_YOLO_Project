@@ -1,0 +1,29 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# YOLO files
+yolov5/
+yolov5su.pt
+
+# Virtual env
+venv/
+yolov5-env/
+.venv/
+
+# VSCode settings
+.vscode/
+
+# Datasets / large files
+data/
+*.csv
+*.jpg
+CarObjectDetection/
+FruitImagesObjectDetection/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Outputs
+output/
