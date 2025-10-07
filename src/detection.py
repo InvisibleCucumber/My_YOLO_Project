@@ -1,10 +1,10 @@
-from ultralytics import YOLO
+#from ultralytics import YOLO
 import os
 
 # model = YOLO("yolov5s.pt")
 
 images_path = "E:/VSCode02/YOLO5/FruitImagesObjectDetection/train_zip/train"
-output_path = "E:/VSCode02/YOLO5/outputs"
+output_path = "E:/VSCode02/YOLO5/outputs/detection"
 
 # results = model.predict(source = os.path.join(images_path , "*.jpg") , 
 #                         project = output_path ,

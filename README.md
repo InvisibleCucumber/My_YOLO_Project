@@ -32,6 +32,7 @@ YOLOv5
 yolo_env --> Activate in bash -->
 ```bash
 source yolov5-env/Scripts/activate
+source E:/VSCode02/YOLO5/yolov5-env/Scripts/activate
 ```
 
 ## ▶️ 4. Run the Project
@@ -58,3 +59,8 @@ python e:/VSCode02/YOLO5/src/detection.py
 
     If you are using video, webcam, large number of images or streaming, be sure to add **stream=True** so that the outputs are processed as a generator (stream) and not stored in memory.
 
+# 🚀 YOLO Classification
+
+## Description
+    Inside the utill, we wrote a function that uses the kwargs and is used for classification!
+    In this style of function, we don't need to set new parameters every time, but it intelligently takes and uses any number of new parameters.

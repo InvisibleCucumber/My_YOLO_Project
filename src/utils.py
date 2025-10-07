@@ -1,6 +1,8 @@
 from ultralytics import YOLO
 import os
 import pandas as pd
+from pathlib import Path
+import cv2
 
 def obj_detection(input_path : str , weights : str = "yolov5s.pt" , output_path : str = "outputs" ,
                    name : str = "predict" , save = True , show = False , conf : float = 0.25 , classes = None ,
@@ -48,4 +50,70 @@ def obj_detection(input_path : str , weights : str = "yolov5s.pt" , output_path 
         print(f"✅ CSV saved at: {csv_path}")
 
 
+    return results
+
+def  img_classification(input_path : str , weights : str = "yolov8n-cls.pt" , **kwargs):
+    
+    output_path = kwargs.pop("project", "outputs")
+    name = kwargs.pop("name", "classification")
+    csv = kwargs.pop("csv", False)
+    topk = kwargs.get("topk", 3)
+    device = kwargs.pop("device", None)
+    save = kwargs.pop("save", True)
+
+    final_dir = Path(output_path) / name # outputs/classification
+    final_dir.mkdir(parents=True, exist_ok=True)
+
+    model = YOLO(weights)
+
+    kwargs.setdefault("source", input_path)
+
+    if device is not None:
+        kwargs["device"] = device
+
+    results = model.predict(**kwargs)
+
+    rows = []
+    for r in results:
+        img = r.orig_img.copy()
+        # probs کلاس‌ها
+        probs = getattr(r, "probs", None)
+        if probs is None:
+            continue
+
+        # انتقال به CPU و تبدیل به لیست
+        probs_list = probs.cpu().data.numpy().tolist() if hasattr(probs, "cpu") else probs.data.numpy().tolist()
+
+        # مرتب کردن top-k
+        indexed = sorted(enumerate(probs_list), key=lambda x: x[1], reverse=True)[:topk]
+
+        for cls_idx, prob in indexed:
+            class_name = r.names[cls_idx]
+
+            # نوشتن روی تصویر فقط کلاس اول
+            if cls_idx == indexed[0][0] and save:
+                cv2.putText(img, f"{class_name} {prob:.2f}", (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # جمع‌آوری اطلاعات CSV
+            if csv:
+                rows.append({
+                    "image": r.path,
+                    "class_id": cls_idx,
+                    "class_name": class_name,
+                    "probability": prob
+                })
+
+        # ذخیره تصویر annotated
+        if save:
+            out_path = final_dir / Path(r.path).name
+            cv2.imwrite(str(out_path), img)
+
+    # ذخیره CSV
+    if csv and rows:
+        df = pd.DataFrame(rows)
+        df.to_csv(final_dir / "classification_results.csv", index=False)
+        print(f"[✅] CSV saved to {final_dir/'classification_results.csv'}")
+
+    print(f"[✅] Annotated images saved to {final_dir}")
     return results
